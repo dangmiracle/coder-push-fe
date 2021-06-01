@@ -1,12 +1,8 @@
 import styles from './index.less';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faCoffee,
-  faHeart,
-  faTimes,
-  faUsers,
-} from '@fortawesome/free-solid-svg-icons';
+import { faHeart, faTimes, faUsers } from '@fortawesome/free-solid-svg-icons';
 import * as React from 'react';
+
 export default class extends React.Component {
   constructor(props: any) {
     super(props);
@@ -17,18 +13,31 @@ export default class extends React.Component {
   }
 
   componentDidMount() {
-    fetch('https://dummyapi.io/data/api/user?limit=50', {
-      headers: {
-        'app-id': '60349db146ff8b0837d18351',
-      },
-    })
+    this.initCurrentUser();
+    this.getUsersLst();
+  }
+  initCurrentUser() {
+    let currentUserId = localStorage.getItem('currentUserId');
+    if (!currentUserId) {
+      localStorage.setItem('currentUserId', '1'); // fix for current user
+    }
+  }
+
+  getUsersLst() {
+    fetch(process.env.BACKEND_API_URL + '/users', {})
       .then((response) => response.json())
       .then((json) =>
         this.setState({
           userLst: json.data,
-          random: Math.round(Math.random() * 50),
+          random: 2 + Math.round(Math.random() * 48),
         }),
       );
+  }
+
+  markUser(data: any) {
+    fetch(process.env.BACKEND_API_URL + '/users/mark', data).then((response) =>
+      this.getUsersLst(),
+    );
   }
 
   render() {
@@ -47,10 +56,28 @@ export default class extends React.Component {
             {userLst[random]?.lastName ? userLst[random]?.lastName : ''}
           </div>
           <div className={styles.actionBox}>
-            <div className={styles.actionButton}>
+            <div
+              className={styles.actionButton}
+              onClick={() =>
+                this.markUser({
+                  fromUserMarkValue: 0,
+                  fromUserId: localStorage.getItem('currentUserId'),
+                  toUserId: userLst[random]?.id,
+                })
+              }
+            >
               <FontAwesomeIcon icon={faTimes} size={'2x'} color={'grey'} />
             </div>
-            <div className={styles.actionButton}>
+            <div
+              className={styles.actionButton}
+              onClick={() =>
+                this.markUser({
+                  fromUserMarkValue: 1,
+                  fromUserId: localStorage.getItem('currentUserId'),
+                  toUserId: userLst[random]?.id,
+                })
+              }
+            >
               <FontAwesomeIcon icon={faHeart} size={'2x'} color={'red'} />
             </div>
             <div className={styles.actionButton}>
