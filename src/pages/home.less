@@ -1,0 +1,46 @@
+.wrapper {
+  background: #031c30;
+
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+
+  .contentBox {
+    width: 300px;
+    position: absolute;
+
+    .imageBox {
+      width: 300px;
+      height: 300px;
+      background: #eeeeee;
+      overflow-y: auto;
+
+      .imageContent {
+        width: 300px;
+        height: 300px !important;
+      }
+    }
+    .infoBox {
+      padding-top: 30px;
+      text-align: center;
+      height: 80px;
+      background: #eeeeee;
+      font-size: 16px;
+    }
+    .actionBox {
+      text-align: center !important;
+      height: 80px;
+      background: #eeeeee;
+      display: flex;
+      .actionButton {
+        padding-top: 25px;
+        width: 150px;
+        cursor: pointer;
+      }
+      .actionButton:hover {
+        background: #c5bfbf;
+      }
+    }
+  }
+}

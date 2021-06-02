@@ -1,9 +1,12 @@
-import styles from './index.less';
+import styles from './home.less';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faHeart, faTimes, faUsers } from '@fortawesome/free-solid-svg-icons';
 import * as React from 'react';
+import httpClient from '@/services/http-client';
+import { calculateAge } from '../../helper';
+import { history } from 'umi';
 
-export default class extends React.Component {
+export default class Home extends React.Component {
   constructor(props: any) {
     super(props);
     this.state = {
@@ -24,20 +27,18 @@ export default class extends React.Component {
   }
 
   getUsersLst() {
-    fetch(process.env.BACKEND_API_URL + '/users', {})
-      .then((response) => response.json())
-      .then((json) =>
-        this.setState({
-          userLst: json.data,
-          random: 2 + Math.round(Math.random() * 48),
-        }),
-      );
+    httpClient.get(`/users`).then((res: { data: { data: any } }) => {
+      this.setState({
+        userLst: res.data.data,
+        random: 2 + Math.round(Math.random() * 48),
+      });
+    });
   }
 
   markUser(data: any) {
-    fetch(process.env.BACKEND_API_URL + '/users/mark', data).then((response) =>
-      this.getUsersLst(),
-    );
+    httpClient.post('/users/mark', data).then((response: any) => {
+      this.getUsersLst();
+    });
   }
 
   render() {
@@ -53,18 +54,22 @@ export default class extends React.Component {
           </div>
           <div className={styles.infoBox}>
             {userLst[random]?.firstName ? userLst[random]?.firstName : ''}{' '}
-            {userLst[random]?.lastName ? userLst[random]?.lastName : ''}
+            {userLst[random]?.lastName ? userLst[random]?.lastName : ''}{' '}
+            {userLst[random]?.dateOfBirth
+              ? calculateAge(userLst[random]?.dateOfBirth)
+              : ''}
+            {}
           </div>
           <div className={styles.actionBox}>
             <div
               className={styles.actionButton}
-              onClick={() =>
+              onClick={() => {
                 this.markUser({
-                  fromUserMarkValue: 0,
                   fromUserId: localStorage.getItem('currentUserId'),
+                  markVal: 0,
                   toUserId: userLst[random]?.id,
-                })
-              }
+                });
+              }}
             >
               <FontAwesomeIcon icon={faTimes} size={'2x'} color={'grey'} />
             </div>
@@ -72,15 +77,18 @@ export default class extends React.Component {
               className={styles.actionButton}
               onClick={() =>
                 this.markUser({
-                  fromUserMarkValue: 1,
                   fromUserId: localStorage.getItem('currentUserId'),
+                  markVal: 1,
                   toUserId: userLst[random]?.id,
                 })
               }
             >
               <FontAwesomeIcon icon={faHeart} size={'2x'} color={'red'} />
             </div>
-            <div className={styles.actionButton}>
+            <div
+              className={styles.actionButton}
+              onClick={() => history.push('/marked-list')}
+            >
               <FontAwesomeIcon icon={faUsers} size={'2x'} />
             </div>
           </div>
